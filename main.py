@@ -1,18 +1,28 @@
 from ast import Return
 from unittest import result
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from mysqlx import Result
 from database import mycursor, mydb
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+
 
 
 app = FastAPI()
 
-@app.get("/")
-async def exibir_prod():
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+templates = Jinja2Templates(directory="templates")
+
+
+@app.get("/", response_class=HTMLResponse)
+async def exibir_prod(request: Request):
     mycursor = mydb.cursor()
     mycursor.execute("SELECT * FROM `produtos` ")
     myresult = mycursor.fetchall()
-    return myresult
+    return templates.TemplateResponse("index.html", {"request": request})
+   
 
 
 @app.get("/inserir")
