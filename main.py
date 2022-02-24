@@ -71,6 +71,7 @@ async def del_prod(request: Request, item_id: int):
     return templates.TemplateResponse('/listadesejos.html/', {'request': request})
   
     
+
        
                 
 
