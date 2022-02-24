@@ -1,0 +1,33 @@
+body{
+    background: url("img/fundo.jpg") no-repeat fixed center;
+    
+  }
+    .card{
+      width: 18rem;
+      border-radius: 10px 10px 10px 10px; 
+      box-shadow: 7px 7px 13px 0px rgba(10, 10, 10, 0.22);
+      
+     
+      
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      cursor: pointer;
+      
+    }
+    .row{
+      position: relative;
+      margin-top: 1em;
+      display: inline-block;
+    }
+
+    #btncomprar{
+      margin-top: 2em;
+    }
+
+    div{
+      display: inline-block;
+    }
+  
+     
+    

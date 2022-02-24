@@ -1,7 +1,9 @@
-from ast import Return
+from ast import For, Return
+from contextlib import redirect_stderr
+from itertools import count
 from unittest import result
 from fastapi import FastAPI, Request
-from mysqlx import Result
+import uvicorn
 from database import mycursor, mydb
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
@@ -21,35 +23,57 @@ async def exibir_prod(request: Request):
     mycursor = mydb.cursor()
     mycursor.execute("SELECT * FROM `produtos` ")
     myresult = mycursor.fetchall()
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse("index.html", {"request": request, 'resultado':myresult})
+
    
+@app.get("/listadesejos", response_class=HTMLResponse)
+async def exibir_desejos(request: Request):
+    mycursor = mydb.cursor()
+    mycursor.execute("SELECT * FROM `listdesejos` ")
+    myresult = mycursor.fetchall()          
+    return templates.TemplateResponse("listadesejos.html", {"request": request, 'lista':myresult})
 
 
-@app.get("/inserir")
-async def inserir_prod():
-    sql = "INSERT INTO produtos (produto, quantidade) VALUES (%s, %s)"
-    val = ("Caneta gel Cacto Branca",1)
+@app.get("/pag_produto/{id_item_prod}", response_class=HTMLResponse)
+async def exibir_desejos(request: Request, id_item_prod: int):
+    mycursor = mydb.cursor()
+    mycursor.execute("SELECT * FROM `produtos` WHERE id_produto =%s", [id_item_prod])
+    myresult = mycursor.fetchall()          
+    return templates.TemplateResponse("pag_produto.html", {"request": request, 'produto': myresult })
+
+
+
+@app.get("/inserir/{item_prod}", response_class=HTMLResponse)
+async def inserir_desejo(request: Request, item_prod: int):
+    sql = "INSERT INTO `listdesejos`(`id_lista`, `id_produto`, `id_cliente`) VALUES (%s,%s,%s)"
+    val = ('null',item_prod,'id_cliente')
     mycursor.execute(sql, val)
     mydb.commit()
-    result=mycursor.rowcount, "record inserted."
-    return{result}
-
-@app.get("/editar/{item_id}")
-async def editar_prod(item_id, qtd: int, valor_prd: float):
-    mycursor = mydb.cursor()
-    mycursor.execute("UPDATE `produtos` SET `quantidade`= %s,`valor_produto`=%s WHERE id_produto=%s", [qtd, valor_prd, item_id] )
-    mydb.commit()
-    return {mycursor.rowcount, "record(s) affected"}
+    myresult = mycursor.fetchall()  
+    return templates.TemplateResponse('listadesejos.html', {'request': request, 'lts':myresult })
    
-   
-
-@app.get("/deletar/{item_id}")
-async def del_prod(item_id: int):
+       
+    
+@app.get("/", response_class=HTMLResponse)
+async def cont_item(request: Request):
     mycursor = mydb.cursor()
-    mycursor.execute("DELETE FROM produtos WHERE id_produto=%s", [item_id])     
+    mycursor.execute("SELECT COUNT(*) FROM listdesejos ")
+    contagem=mycursor.fetchall()
+    return templates.TemplateResponse('index.html', {'request': request, 'contagem': contagem })
+    
+
+@app.get("/deletar/{item_id}", response_class=HTMLResponse)
+async def del_prod(request: Request, item_id: int):
+    mycursor = mydb.cursor()
+    mycursor.execute("DELETE FROM `listdesejos` WHERE id_lista=%s", [item_id])     
     mydb.commit()
     result=mycursor.rowcount
-    if result==1:
-        return {"Item deletado com Sucesso!"}  
-    elif result==0:
-        return {"Item não existe no sistema!"}
+    return templates.TemplateResponse('/listadesejos.html/', {'request': request})
+  
+    
+       
+if __name__ == '__main__':
+    uvicorn.run(app)
+                
+
+   
