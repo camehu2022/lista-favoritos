@@ -6,7 +6,7 @@ from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from .database import Base
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
+#SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
 #SQLALCHEMY_DATABASE_URL = "postgres:// nxuknqjavcpxsf : aafd4ad7bd3c93b5a9b0116afe12191046f23c2c43d1610e5da3b6d7d5b1a8cd @ ec2-3-219-204-29.compute-1.amazonaws.com : 5432 / d1vujr12ut9es"
  
 engine = create_engine(
@@ -27,4 +27,5 @@ class User(Base):
         
     Base.metadata.create_all(engine)
     
-   
+def __repr__(self):
+        return f'User {self.name}'
